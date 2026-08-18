@@ -20,7 +20,7 @@ jobs:
         
     # 3. 編譯 Blazor 專案 (這裡的 ValentineCard.csproj 對應你的專案檔)
     - name: Publish .NET Core Project
-      run: dotnet publish ValentineCard.csproj -c Release -o release --nologo
+      run: dotnet publish ValentineDayCard/ValentineDayCard.csproj -c Release -o release --nologo
       
     # 4. 加入 .nojekyll (告訴 GitHub 這不是一般的 Blog，不要略過底線開頭的系統檔)
     - name: Add .nojekyll file
