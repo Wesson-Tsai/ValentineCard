@@ -1,0 +1,34 @@
+name: Deploy to GitHub Pages
+
+# 這裡設定當你 push 到 master 分支時自動觸發
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-to-github-pages:
+    runs-on: ubuntu-latest
+    steps:
+    # 1. 下載你的程式碼
+    - uses: actions/checkout@v3
+    
+    # 2. 安裝 .NET 8 環境
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+        
+    # 3. 編譯 Blazor 專案 (這裡的 ValentineCard.csproj 對應你的專案檔)
+    - name: Publish .NET Core Project
+      run: dotnet publish ValentineDayCard/ValentineDayCard.csproj -c Release -o release --nologo
+      
+    # 4. 加入 .nojekyll (告訴 GitHub 這不是一般的 Blog，不要略過底線開頭的系統檔)
+    - name: Add .nojekyll file
+      run: touch release/wwwroot/.nojekyll
+      
+    # 5. 發布到 gh-pages 分支
+    - name: Commit wwwroot to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./release/wwwroot
