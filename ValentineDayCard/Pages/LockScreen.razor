@@ -1,0 +1,139 @@
+﻿<PageTitle>LockScreen</PageTitle>
+
+<div class="page-background">
+    <div class="cat-rain-container">
+        @foreach (var cat in cats)
+        {
+            <img src="/images/LayingCat.png"
+                 class="falling-cat"
+                 style="left: @(cat.Left)vw;
+            animation-duration: @(cat.Duration)s;
+            animation-delay: @(cat.Delay)s;
+            transform: rotate(@(cat.Rotation)deg);"
+                 alt="cat" />
+        }
+    </div>
+
+    <div class="keyboard-container">
+        <!-- Error Message -->
+        <div class="error-message-container">
+            @if (ShowError)
+            {
+                <span class="error-text jump-anim">喔嗚 輸入錯囉</span>
+            }
+        </div>
+
+        <!-- Display Area -->
+        <div class="display-area">
+            @for (int i = 0; i < 4; i++)
+            {
+                <div class="display-box">
+                    @(InputtedNumbers.Length > i ? InputtedNumbers[i].ToString() : "")
+                </div>
+            }
+        </div>
+
+        <!-- Button Area -->
+        <div class="keypad-area">
+            <button class="key-btn" @onclick="() => AddNumber(1)">1</button>
+            <button class="key-btn" @onclick="() => AddNumber(2)">2</button>
+            <button class="key-btn" @onclick="() => AddNumber(3)">3</button>
+
+            <button class="key-btn" @onclick="() => AddNumber(4)">4</button>
+            <button class="key-btn" @onclick="() => AddNumber(5)">5</button>
+            <button class="key-btn" @onclick="() => AddNumber(6)">6</button>
+
+            <button class="key-btn" @onclick="() => AddNumber(7)">7</button>
+            <button class="key-btn" @onclick="() => AddNumber(8)">8</button>
+            <button class="key-btn" @onclick="() => AddNumber(9)">9</button>
+
+            <button class="key-btn action-btn confirm" @onclick="Confirm">確認</button>
+            <button class="key-btn" @onclick="() => AddNumber(0)">0</button>
+            <button class="key-btn action-btn delete" @onclick="DeleteNumber">刪除</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Cat falling animation setting
+    private int CatCount = 15;      // # of cats
+    private int MinDuration = 10;   // Fastest falling time (s)
+    private int MaxDuration = 20;   // Slowest falling tmie (s)
+
+    private List<CatInfo> cats = new List<CatInfo>();
+
+    // Cat falling information
+    private class CatInfo
+    {
+        public int Left { get; set; }
+        public int Duration { get; set; }
+        public int Rotation { get; set; }
+        public double Delay { get; set; }
+    }
+
+    // Password
+    private string InputtedNumbers = "";
+    private string Password = "0419";
+    private int PasswordLength = 4;
+    private bool ShowError = false;
+
+    [Parameter]
+    public EventCallback OnUnlock { get; set; }
+
+    // Page Initailization
+    protected override void OnInitialized()
+    {
+        for (int i = 0; i < CatCount; i++)
+        {
+            cats.Add(new CatInfo
+            {
+                Left = Random.Shared.Next(0, 90),
+                Duration = Random.Shared.Next(MinDuration, MaxDuration),
+                Rotation = Random.Shared.Next(-30, 31),
+                Delay = Random.Shared.NextDouble() * -20
+            });
+        }
+    }
+
+    // Add number
+    private void AddNumber(int num)
+    {
+        if (InputtedNumbers.Length < PasswordLength)
+        {
+            InputtedNumbers += num.ToString();
+        }
+    }
+
+    // Delete number
+    private void DeleteNumber()
+    {
+        if (InputtedNumbers.Length > 0)
+        {
+            // Delete the last number
+            InputtedNumbers = InputtedNumbers.Substring(0, InputtedNumbers.Length - 1);
+        }
+    }
+
+    // Confirmation
+    private async Task Confirm()
+    {
+        if (InputtedNumbers.Length == PasswordLength)
+        {
+            if (InputtedNumbers == Password)
+            {
+                ShowError = false;
+                await OnUnlock.InvokeAsync();
+            }
+            else
+            {
+                ShowError = false;
+                StateHasChanged();
+                await Task.Delay(10);
+
+                ShowError = true;
+                InputtedNumbers = "";
+                StateHasChanged();
+            }
+        }
+    }
+}

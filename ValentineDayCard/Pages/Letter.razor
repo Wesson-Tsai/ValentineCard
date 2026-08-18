@@ -1,0 +1,39 @@
+﻿<PageTitle>Letter</PageTitle>
+
+<div class="page-background">
+
+    <!-- 信封外框 (加入淡入動畫) -->
+    <div class="letter-wrapper fade-in">
+
+        <!-- 斜躺在右上角的貓貓 -->
+        <img src="/images/PrettyCat.png" class="lying-cat" alt="Lying Cat" />
+
+        <!-- 信件文字內容 -->
+        <div class="letter-content">
+            <div class="greeting">小蔡說：</div>
+
+            <div class="body-text">
+                這是一段五十到六十個字左右的內文排版測試。謝謝你一直以來的陪伴，希望這個專屬的小驚喜能為你帶來快樂。未來的日子裡，我們也要一起開心地度過每一天喔！
+            </div>
+
+            <div class="signature">愛你的小蔡</div>
+        </div>
+
+        <!-- 返回主畫面的按鈕 (沿用之前的按鈕樣式) -->
+        <div class="action-area">
+            <button class="finish-btn" @onclick="ReturnToMain">返回主畫面</button>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    // 讓父元件 (Home.razor) 可以接收返回訊號
+    [Parameter]
+    public EventCallback OnLetterSelected { get; set; }
+
+    private async Task ReturnToMain()
+    {
+        await OnLetterSelected.InvokeAsync();
+    }
+}

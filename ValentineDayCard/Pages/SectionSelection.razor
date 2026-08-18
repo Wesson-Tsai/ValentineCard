@@ -1,0 +1,85 @@
+﻿<PageTitle>SectionSelection</PageTitle>
+
+<div class="page-background">
+    <!-- 🌟 新增一個 main-content 容器，用來讓泡泡區與最終按鈕「上下垂直」排列 -->
+    <div class="main-content">
+
+        <!-- 中央的泡泡按鈕區 (維持左右並排) -->
+        <div class="selection-container">
+            <div class="btn-wrapper">
+                <div class="bubble-btn" @onclick="GoToLetter">
+                    <img src="/images/Letter.png" alt="Letter" />
+                </div>
+                <div class="btn-text">閱讀時間</div>
+            </div>
+
+            <div class="btn-wrapper">
+                <div class="bubble-btn" @onclick="GoToQuiz">
+                    <img src="/images/Sheet.png" alt="Sheet" />
+                </div>
+                <div class="btn-text">隨堂小考</div>
+            </div>
+        </div>
+
+        <!-- 🌟 隱藏的最終按鈕 (顯示在泡泡正下方) -->
+        @if (HasReadLetter && HasPlayedQuiz)
+        {
+            <div class="final-action-area fade-in">
+                <button class="finish-btn" @onclick="GoToEndScreen">最後，我想跟你說</button>
+            </div>
+        }
+
+    </div>
+
+    <!-- 右下角的導航貓貓區 -->
+    <div class="navigator-container">
+        <div class="speech-bubble">
+            @if (HasReadLetter && HasPlayedQuiz)
+            {
+                <span>有新東西出現了！快去看看！</span>
+            }
+            else
+            {
+                <span>喵喵喵喵喵喵喵</span>
+            }
+        </div>
+        <img src="/images/BagCat.png" class="bag-cat" alt="Navigator Cat" />
+    </div>
+</div>
+
+@code {
+    private static bool HasReadLetter = false;
+    private static bool HasPlayedQuiz = false;
+
+    public static void ResetState()
+    {
+        HasReadLetter = false;
+        HasPlayedQuiz = false;
+    }
+
+    [Parameter]
+    public EventCallback OnLetterSelected { get; set; }
+
+    [Parameter]
+    public EventCallback OnQuizSelected { get; set; }
+
+    [Parameter]
+    public EventCallback OnEndScreenSelected { get; set; }
+
+    private async Task GoToLetter()
+    {
+        HasReadLetter = true;
+        await OnLetterSelected.InvokeAsync();
+    }
+
+    private async Task GoToQuiz()
+    {
+        HasPlayedQuiz = true;
+        await OnQuizSelected.InvokeAsync();
+    }
+
+    private async Task GoToEndScreen()
+    {
+        await OnEndScreenSelected.InvokeAsync();
+    }
+}

@@ -1,0 +1,42 @@
+﻿<PageTitle>EndScreen</PageTitle>
+
+<div class="page-background">
+    <!-- 中央主要內容區 -->
+    <div class="end-screen-container fade-in">
+
+        <!-- 影片區塊 -->
+        <div class="video-wrapper">
+            <!-- 確保 Ending.MP4 放在 wwwroot 資料夾下 -->
+            <video src="/images/Ending.MP4"
+                   autoplay loop muted playsinline
+                   class="valentines-video">
+            </video>
+        </div>
+
+        <!-- 祝福文字 -->
+        <div class="greeting-text">
+            情人節快樂 ❤️
+        </div>
+
+        <!-- 改為返回解鎖畫面的按鈕 -->
+        <button class="finish-btn close-btn" @onclick="ReturnToLock">重新上鎖</button>
+
+    </div>
+
+    <!-- 右下角的導航貓貓區 -->
+    <div class="navigator-container">
+        <div class="speech-bubble">好啦，愛你！</div>
+        <img src="/images/BagCat.png" class="bag-cat" alt="Navigator Cat" />
+    </div>
+</div>
+
+@code {
+    // 建立向外溝通的事件
+    [Parameter]
+    public EventCallback OnReturnToLockScreen { get; set; }
+
+    private async Task ReturnToLock()
+    {
+        await OnReturnToLockScreen.InvokeAsync();
+    }
+}

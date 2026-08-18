@@ -1,0 +1,57 @@
+﻿@page "/"
+
+<div class="app-container">
+    <!-- Change State-->
+    @switch (CurrentState)
+    {
+        case AppState.LockScreen:
+            <LockScreen OnUnlock="ChangeToSectionSelection" />
+            break;
+        case AppState.SectionSelection:
+            <SectionSelection OnQuizSelected="ChangeToQuiz"
+                              OnLetterSelected="ChangeToLetter"
+                              OnEndScreenSelected="ChangeToEndScreen" />
+            break;
+        case AppState.Quiz:
+            <Quiz OnReturnToSection="ChangeToSectionSelection" />
+            break;
+        case AppState.Letter:
+            <Letter OnLetterSelected="ChangeToSectionSelection" />
+            break;
+        case AppState.EndScreen:
+            <EndScreen OnReturnToLockScreen="ChangeToLockScreen" />
+            break;
+    }
+</div>
+
+@code {
+    private enum AppState { LockScreen, SectionSelection, Quiz, Letter, EndScreen };
+    private AppState CurrentState = AppState.LockScreen;
+
+    private void ChangeToSectionSelection()
+    {
+        CurrentState = AppState.SectionSelection;
+    }
+
+    private void ChangeToLetter()
+    {
+        CurrentState = AppState.Letter;
+    }
+
+    private void ChangeToQuiz()
+    {
+        CurrentState = AppState.Quiz;
+    }
+
+    private void ChangeToEndScreen()
+    {
+        CurrentState = AppState.EndScreen;
+    }
+
+    private void ChangeToLockScreen()
+    {
+        SectionSelection.ResetState();
+        Quiz.ResetState();
+        CurrentState = AppState.LockScreen;
+    }
+}

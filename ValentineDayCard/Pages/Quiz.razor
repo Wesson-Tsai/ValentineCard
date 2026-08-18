@@ -1,0 +1,221 @@
+﻿<PageTitle>Quiz</PageTitle>
+
+<div class="page-background">
+    <div class="quiz-container">
+
+        @if (CurrentView == ViewState.Answering)
+        {
+            var currentQ = Questions[CurrentQuestionIndex];
+
+            <div class="question-card fade-in" @key="CurrentQuestionIndex">
+                <!-- 題目區 -->
+                <div class="question-area">
+                    <span class="question-number">Q@(CurrentQuestionIndex + 1).</span>
+                    @currentQ.Text
+                </div>
+
+                <!-- 作答區 -->
+                <div class="answer-area">
+                    @foreach (var option in currentQ.Options)
+                    {
+                        <div class="option-row @(SelectedOption == option ? "selected" : "")"
+                             @onclick="() => SelectOption(option)">
+                            <div class="custom-checkbox">
+                                @if (SelectedOption == option)
+                                {
+                                    <span class="check-mark">✔</span>
+                                }
+                            </div>
+                            <div class="option-text">@option</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else if (CurrentView == ViewState.Score)
+        {
+            <!-- 🌟 測驗結算畫面 -->
+            <div class="question-card fade-in completion-card">
+                <div class="completion-area">
+                    <h2>🎉 測驗完成！</h2>
+
+                    <div class="score-display">
+                        <div class="score-label">你的答對題數</div>
+                        <div class="score-number">@Score <span class="score-total">/ @Questions.Count</span></div>
+                    </div>
+
+                    <p class="score-message">
+                        @if (Score == Questions.Count)
+                        {
+                            <span>蒸蚌！我們天下第一熟！</span>
+                        }
+                        else if (Score >= Questions.Count / 2.0)
+                        {
+                            <span>我覺得我們可以還可以再熟一點</span>
+                        }
+                        else
+                        {
+                            <span>喔嗚，原來我們這麼不熟</span>
+                        }
+                    </p>
+
+                    <!-- 按下後切換到領獎畫面 -->
+                    <button class="finish-btn" @onclick="GoToPrize">領取獎品</button>
+                </div>
+            </div>
+        }
+        else if (CurrentView == ViewState.Prize)
+        {
+            <!-- 🎁 領獎畫面 -->
+            <div class="question-card fade-in completion-card">
+                <div class="completion-area">
+                    <h2>🎁 專屬獎勵</h2>
+
+                    <div class="prize-ticket">
+                        隨call隨到券 * 3
+                    </div>
+                    <p class="prize-subtitle">想我了? 我就去找你！</p>
+
+                    <!-- 按下後通知父元件切換回主選單 -->
+                    <button class="finish-btn" @onclick="ReturnToMain">返回主畫面</button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- 貓貓導航區 -->
+    <div class="navigator-container">
+        <div class="speech-bubble">
+            @if (CurrentView == ViewState.Answering)
+            {
+                <span>題目要答對才會有獎品喔～</span>
+            }
+            else if (CurrentView == ViewState.Score)
+            {
+                <span>來看看你答對幾題！</span>
+            }
+            else if (CurrentView == ViewState.Prize)
+            {
+                <span>小蔡對你真好～</span>
+            }
+        </div>
+        <img src="/images/BagCat.png" class="bag-cat" alt="Navigator Cat" />
+    </div>
+</div>
+
+@code {
+    // === 資料結構與題庫 (維持不變) ===
+    private class QuizQuestion
+    {
+        public string Text { get; set; }
+        public List<string> Options { get; set; }
+        public string CorrectAnswer { get; set; }
+    }
+
+    private List<QuizQuestion> Questions = new List<QuizQuestion>
+    {
+        new QuizQuestion { Text = "請問在12/31跨年那天，小蔡總共吃了幾顆綠葡萄，讓他成功在4個月後跟你在一起？",
+                           Options = new List<string> { "誰記得啊，我猜11顆", "應該是12顆吧", "我記得！是13顆" },
+                           CorrectAnswer = "誰記得啊，我猜11顆" },
+        new QuizQuestion { Text = "請問你跟小蔡第一次見面的日期？",
+                           Options = new List<string> { "1/27 (二)", "1/20 (二)", "1/29 (五)" },
+                           CorrectAnswer = "1/27 (二)" },
+        new QuizQuestion { Text = "請問你跟小蔡第一次去宜蘭，回來松山後到八德停車場，在第幾樓聊了好久好久？",
+                           Options = new List<string> { "8樓", "10樓", "12樓" },
+                           CorrectAnswer = "10樓" },
+        new QuizQuestion { Text = "請問你覺得小蔡長得怎麼樣？",
+                           Options = new List<string> { "不好看(不是選這個)", "還行(不是選這個)", "超好看(選這個)" },
+                           CorrectAnswer = "超好看(選這個)" },
+        new QuizQuestion { Text = "請問小蔡半夜4點想要你去他家煮牛肉麵給他吃，你會怎麼做？",
+                           Options = new List<string> { "去他家煮牛肉麵，不能餓到！", "誰要去啊", "小蔡不吃牛，一百分" },
+                           CorrectAnswer = "小蔡不吃牛，一百分" },
+        new QuizQuestion { Text = "請問4/17那天，從竹北往動物園的路上，你拿著小蔡的手機導航，看到了甚麼訊息？",
+                           Options = new List<string> { "今天衝了吧老哥", "就是今晚了蔡，衝！", "還在想甚麼，衝了啦" },
+                           CorrectAnswer = "今天衝了吧老哥" },
+        new QuizQuestion { Text = "請問小蔡最想養的動物組合是什麼？",
+                           Options = new List<string> { "奶牛貓 + 柴犬 + 薩摩耶", "熊貓 + 哈士奇 + 奶牛貓", "奶牛貓 + 浣熊 + 柴犬" },
+                           CorrectAnswer = "奶牛貓 + 浣熊 + 柴犬" },
+        new QuizQuestion { Text = "請問小蔡在成功嶺的時候，每天都在想什麼？",
+                           Options = new List<string> { "什麼時候吃飯", "什麼時候見到你(絕對是這個)", "什麼時候睡覺" },
+                           CorrectAnswer = "什麼時候見到你(絕對是這個)" },
+        new QuizQuestion { Text = "請問小蔡最喜歡跟你做什麼？",
+                           Options = new List<string> { "窩在家看母胎單", "出去玩", "都喜歡！" },
+                           CorrectAnswer = "都喜歡！" },
+        new QuizQuestion { Text = "如果有一天小菜被壞人抓走，需要你吃一大口紫色的茄子才能解救他，你會為了他這麼做嗎？",
+                           Options = new List<string> { "抱歉了小蔡 茄子有毒", "為了小蔡我願意", "想不到還有什麼答案 湊數用的" },
+                           CorrectAnswer = "為了小蔡我願意" },
+        new QuizQuestion { Text = "請問喜歡小蔡嗎？",
+                           Options = new List<string> { "宇宙無敵旋風阿姆斯特郎大砲喜歡", "超喜歡", "喜歡" },
+                           CorrectAnswer = "宇宙無敵旋風阿姆斯特郎大砲喜歡" }
+    };
+
+    // === 狀態與變數管理 ===
+
+    // 定義畫面的三種狀態
+    private enum ViewState { Answering, Score, Prize }
+    private ViewState CurrentView = ViewState.Answering;
+
+    // 使用 static 來記錄，這樣切換到別的畫面再回來，紀錄依然存在
+    private static bool HasPlayed = false;
+    private static int FinalScore = 0;
+
+    public static void ResetState()
+    {
+        HasPlayed = false;
+        FinalScore = 0;
+    }
+
+    private int CurrentQuestionIndex = 0;
+    private string SelectedOption = null;
+    private int Score = 0;
+
+    // 接收來自 Home 的切換方法
+    [Parameter]
+    public EventCallback OnReturnToSection { get; set; }
+
+    // 當元件載入時檢查是否已經玩過
+    protected override void OnInitialized()
+    {
+        if (HasPlayed)
+        {
+            CurrentView = ViewState.Score; // 直接進入結算畫面
+            Score = FinalScore;            // 載入之前的分數
+            CurrentQuestionIndex = Questions.Count;
+        }
+    }
+
+    private async Task SelectOption(string option)
+    {
+        if (SelectedOption != null) return;
+        SelectedOption = option;
+
+        if (SelectedOption == Questions[CurrentQuestionIndex].CorrectAnswer)
+        {
+            Score++;
+        }
+
+        StateHasChanged();
+        await Task.Delay(400);
+
+        CurrentQuestionIndex++;
+        SelectedOption = null;
+
+        // 判斷是否答完所有題目
+        if (CurrentQuestionIndex >= Questions.Count)
+        {
+            HasPlayed = true;         // 標記為已經玩過
+            FinalScore = Score;       // 儲存最終分數
+            CurrentView = ViewState.Score; // 切換到結算畫面
+        }
+    }
+
+    private void GoToPrize()
+    {
+        CurrentView = ViewState.Prize;
+    }
+
+    private async Task ReturnToMain()
+    {
+        await OnReturnToSection.InvokeAsync();
+    }
+}
